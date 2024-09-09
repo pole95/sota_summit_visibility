@@ -32,3 +32,26 @@ def apply_earth_curvature(profile, distance):
         curvature = sqrt(earth_radius**2 + distance[i] ** 2) - earth_radius
         corr_profile[i] -= curvature
     return corr_profile
+
+
+def numerical_coordinates_to_string(lat, lon):
+    if lat < 0:
+        latstr = f"S{abs(lat):02d}"
+    else:
+        latstr = f"N{(lat):02d}"
+    if lon < 0:
+        lonstr = f"W{(abs(lon)):03d}"
+    else:
+        lonstr = f"E{(lon):03d}"
+    return latstr, lonstr
+
+
+def string_coordinates_to_numerical(coordinate_string):
+    parts = coordinate_string.split("_")
+    lat = int(parts[0][1:])
+    if parts[0][0] == "S":
+        lat = -lat
+    lon = int(parts[2][1:])
+    if parts[1][0] == "W":
+        lon = -lon
+    return lat, lon

@@ -1,4 +1,5 @@
 import argparse
+from math import floor
 import sqlite3
 import tqdm
 from tile_manager import TileManager
@@ -59,10 +60,16 @@ if __name__ == "__main__":
     if summit is None:
         print("Summit not found")
         exit(1)
+    tm = TileManager()
     other_summits = get_summits_distance_from_point(summit[1], summit[0], args.max_distance)
+    tiles = []
+    min_lat, min_lon, max_lat, max_lon = get_square_corners(summit[1], summit[0], args.max_distance)
+    for y in range(floor(min_lat), floor(max_lat) + 1):
+        for x in range(floor(min_lon), floor(max_lon) + 1):
+            tiles.append((x, y))
+    tm.load_tiles(tiles)
 
     output = []
-    tm = TileManager()
     with tqdm.tqdm(total=len(other_summits)) as pbar:
         for code, point in other_summits.items():
             output.append(can_see(summit, point, tm))
