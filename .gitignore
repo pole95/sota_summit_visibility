@@ -1,3 +1,5 @@
 .venv/
 summits.db
 copernicus/*.tif
+__pycache__/
+*.csv
