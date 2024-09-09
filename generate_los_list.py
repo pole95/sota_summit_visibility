@@ -56,9 +56,9 @@ def get_summits_distance_from_point(lat, lon, distance):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("SummitCode", type=str)
-    parser.add_argument("--max_distance", type=int, default=100)
-    parser.add_argument("--tx_height", type=int, default=2)
-    parser.add_argument("--rx_height", type=int, default=2)
+    parser.add_argument("--max-distance", type=int, default=100)
+    parser.add_argument("--tx-height", type=int, default=2)
+    parser.add_argument("--rx-height", type=int, default=2)
     parser.add_argument("--output", type=str, default="output.csv")
     args = parser.parse_args()
     summit = get_summit(args.SummitCode)
@@ -77,6 +77,8 @@ if __name__ == "__main__":
     output = []
     with tqdm.tqdm(total=len(other_summits)) as pbar:
         for code, point in other_summits.items():
+            if code == args.SummitCode:
+                continue
             output.append(is_visible(summit, point, tm, args.tx_height, args.rx_height))
             pbar.update(1)
     with open(args.output, "w") as f:
