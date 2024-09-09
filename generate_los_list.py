@@ -7,6 +7,8 @@ from utils import apply_earth_curvature, linear_interpolation
 import geopy
 from geopy.distance import geodesic
 
+DEM_RMSE = 5  # [m]
+
 
 def get_square_corners(lat, lon, radius):
     center = geopy.Point(lat, lon)
@@ -27,12 +29,12 @@ def get_summit(code):
     return c.execute("SELECT longitude,latitude FROM summits WHERE SummitCode = ?", (code,)).fetchone()
 
 
-def can_see(point1, point2, tile_manager):
+def is_visible(point1, point2, tile_manager, tx_heihgt=2, rx_height=2):
     cum_dist, profile = tile_manager.get_profile(point1, point2)
     corr_profile = apply_earth_curvature(profile, cum_dist)
     for i in range(len(corr_profile)):
-        if (corr_profile[i] - 5) > linear_interpolation(
-            0, cum_dist[-1], corr_profile[0] + 2, corr_profile[-1] + 2, cum_dist[i]
+        if (corr_profile[i] - DEM_RMSE) > linear_interpolation(
+            0, cum_dist[-1], corr_profile[0] + tx_heihgt, corr_profile[-1] + rx_height, cum_dist[i]
         ):
             return False
     return True
@@ -55,6 +57,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("SummitCode", type=str)
     parser.add_argument("--max_distance", type=int, default=100)
+    parser.add_argument("--tx_height", type=int, default=2)
+    parser.add_argument("--rx_height", type=int, default=2)
+    parser.add_argument("--output", type=str, default="output.csv")
     args = parser.parse_args()
     summit = get_summit(args.SummitCode)
     if summit is None:
@@ -72,9 +77,9 @@ if __name__ == "__main__":
     output = []
     with tqdm.tqdm(total=len(other_summits)) as pbar:
         for code, point in other_summits.items():
-            output.append(can_see(summit, point, tm))
+            output.append(is_visible(summit, point, tm, args.tx_height, args.rx_height))
             pbar.update(1)
-    with open("output.csv", "w") as f:
-        f.write("SummitCode,CanSee\n")
-        for code, can_see in zip(other_summits.keys(), output):
-            f.write(f"{code},{can_see}\n")
+    with open(args.output, "w") as f:
+        f.write("SummitCode,Visible\n")
+        for code, visible in zip(other_summits.keys(), output):
+            f.write(f"{code},{visible}\n")
