@@ -5,6 +5,10 @@ A script to determine which SOTA summits are within line of sight of eachother.
 
 To determine the elevation, it uses elevation data from the [Copernicus](https://spacedata.copernicus.eu/collections/copernicus-digital-elevation-model) program from ESA.
 
+## Setup
+
+Run `download_summits.py` first to generate the database of all SOTA summits.
+
 ## Usage
 ``` bash
 python generate_los_list.py  [--max_distance MAX_DISTANCE] [--tx_height TX_HEIGHT] [--rx_height RX_HEIGHT] [--output OUTPUT] SummitCode
